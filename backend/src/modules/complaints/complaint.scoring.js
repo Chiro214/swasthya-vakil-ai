@@ -31,7 +31,7 @@ function calculateRiskScore(text, severity = "Medium") {
   let score = 0;
   const explanation = [];
 
-  // ---- Phrase Detection (higher priority) ----
+  // ---- Phrase Detection (Higher Priority) ----
   for (const phrase in phraseWeights) {
     const matches = lowerText.split(phrase).length - 1;
     if (matches > 0) {
@@ -55,20 +55,36 @@ function calculateRiskScore(text, severity = "Medium") {
     }
   }
 
-  // ---- Severity Multiplier ----
-  let multiplier = 1;
+  // ---- Severity Minimum Enforcement (Deterministic Model) ----
+  let severityMinimum = 0;
 
-  if (severity === "High") multiplier = 1.2;
-  if (severity === "Low") multiplier = 0.8;
-
-  score = score * multiplier;
-
-  if (multiplier !== 1) {
-    explanation.push(`Severity multiplier applied (${multiplier}x)`);
+  switch (severity?.toLowerCase()) {
+    case "critical":
+      severityMinimum = 10;
+      break;
+    case "high":
+      severityMinimum = 8;
+      break;
+    case "medium":
+      severityMinimum = 5;
+      break;
+    case "low":
+      severityMinimum = 2;
+      break;
+    default:
+      severityMinimum = 0;
   }
 
-  // ---- Clamp Score 0–10 ----
-  score = Math.max(0, Math.min(Math.round(score), 10));
+  if (score < severityMinimum) {
+    explanation.push(
+      `Severity minimum enforced (raised to ${severityMinimum})`
+    );
+  }
+
+  score = Math.max(score, severityMinimum);
+
+  // ---- Clamp Score 0–10 (Integer Only) ----
+  score = Math.max(0, Math.min(score, 10));
 
   return {
     score,

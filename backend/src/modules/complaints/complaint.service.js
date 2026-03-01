@@ -6,6 +6,7 @@ async function processComplaint(text, aiResult) {
   // 1️⃣ Calculate Risk
   const riskResult = calculateRiskScore(text, aiResult.severity);
   const riskScore = riskResult.score;
+  console.log("FINAL RISK SCORE:", riskScore);
   const riskExplanation = riskResult.explanation;
 
   // 2️⃣ Determine Escalation

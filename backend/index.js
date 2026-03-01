@@ -1,4 +1,5 @@
 const express = require("express");
+const { processComplaint } = require("./src/modules/complaints/complaint.service");
 const { runPipeline } = require("./src/services/aiPipeline");
 const asyncHandler = require("./src/core/utils/asyncHandler");
 const errorMiddleware = require("./src/core/utils/errorMiddleware");
@@ -25,9 +26,11 @@ app.post(
       throw error;
     }
 
-    const result = await runPipeline(text);
+    const aiResult = await runPipeline(text);
 
-    return successResponse(res, result);
+const finalResult = await processComplaint(text, aiResult);
+
+return successResponse(res, finalResult);
   })
 );
 
